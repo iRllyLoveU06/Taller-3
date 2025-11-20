@@ -45,37 +45,31 @@ class ProcesadorDICOM:
         self._estructurar_datos()
 
     def procesar_archivo(self, dataset: pydicom.Dataset):
-        
-        #Extrae metadatos y realiza el análisis de intensidad de la imagen.
+        #metadatos y cositas
         metadatos_extraidos = {}
-       
-        for nombre_columna, tag_id in self.TAGS_SOLICITADOS.items():
-            # Generar la key del tag a partir del identificador (ej: 'PatientID')
-            tag_keyword = pydicom.datadict.get_entry(*tag_id)[4]
-            
-            # Manejo casos donde el tag no esté presente (anonimizado) 
+
+        #Extracción de metadatos
+        for nombre_columna, tag_keyword in self.TAGS_SOLICITADOS.items():
+
             valor = dataset.get(tag_keyword, None)
             
-            # Formatear el valor si es un objeto DataElement complejo (como PatientName)
             if isinstance(valor, pydicom.valuerep.PersonName):
                 valor = str(valor)
+            elif valor is not None and isinstance(valor, pydicom.uid.UID):
+                 valor = str(valor)
             
             metadatos_extraidos[nombre_columna] = valor
 
-
-        # Cálculo de la intensidad promedio
+        # 4.4 Análisis de imagen
+        intensidad_promedio = None
         try:
-           #llamamos al pixel array
             pixel_data = dataset.pixel_array
-            
-            # Cvalor de intensidad promedio de los píxeles 
             intensidad_promedio = np.mean(pixel_data)
         except AttributeError:
-            # Manejo de error si el archivo no contiene datos de píxeles
-            intensidad_promedio = "No-Imagen"
-            print(f"  [Advertencia] Archivo sin 'pixel_array'. No se calculó la intensidad promedio.")
+            intensidad_promedio = "N/A" 
+        except Exception:
+            intensidad_promedio = "Error" 
 
-        #Añadimos este valor como una nueva columna [cite: 45]
         metadatos_extraidos["Intensidad_Promedio"] = intensidad_promedio
         
         self.lista_metadatos.append(metadatos_extraidos)
@@ -96,3 +90,16 @@ class ProcesadorDICOM:
     def obtener_dataframe(self) -> pd.DataFrame:
        #mandar el pandas creao
         return self.dataframe_resultados
+
+    def guardar_dataframe_a_csv(self, nombre_archivo: str) -> bool:
+        #mejor exportar un archivo csv
+        if self.dataframe_resultados.empty:
+            return False
+        
+        try:
+            # Exporta el Dataframe a un archivo CSV. index=False evita guardar los índices de Pandas.
+            self.dataframe_resultados.to_csv(nombre_archivo, index=False, encoding='utf-8')
+            return True
+        except Exception as e:
+            print(f"  [Error de Guardado] No se pudo guardar el archivo {nombre_archivo}: {e}")
+            return False

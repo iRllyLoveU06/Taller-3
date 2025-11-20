@@ -40,18 +40,24 @@ def main():
                  print("❌ Proceso de carga finalizado. No se pudieron extraer metadatos.")
 
         elif opcion == '2':
-            # 2. Devolver y mostrar Dataframe con los datos
+            # Exportar Metadatos a CSV
             df_final = procesador.obtener_dataframe()
             
             if df_final.empty:
                 print("\n[Advertencia] No hay datos cargados. Por favor, use la opción 1 primero.")
             else:
-                print("\n" + "="*70)
-                print("           Dataframe de Metadatos DICOM (Primeras 5 Filas)")
-                print("="*70)
-                print(df_final.head().to_string())
-                print(f"\nTotal de archivos procesados: {df_final.shape[0]}")
-                print(f"Columnas: {list(df_final.columns)}")
+                nombre_archivo = input("Ingrese el nombre del archivo de salida (ej: resultados.csv): ").strip()
+                
+                if not nombre_archivo.lower().endswith('.csv'):
+                    nombre_archivo += '.csv'
+                
+                print(f"\nGuardando datos en {nombre_archivo}...")
+                
+                if procesador.guardar_dataframe_a_csv(nombre_archivo):
+                    print(f"✅ ¡Exportación exitosa! El archivo '{nombre_archivo}' ha sido creado.")
+                    print(f"   Total de registros guardados: {df_final.shape[0]}")
+                else:
+                    print(f"❌ La exportación falló. Verifique los permisos o el contenido del Dataframe.")
 
         elif opcion == '3':
             # 3. Salir
