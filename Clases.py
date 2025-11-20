@@ -53,7 +53,6 @@ class ProcesadorDICOM:
         self._estructurar_datos()
         return archivos_validos > 0
     
-
     def procesar_archivo(self, dataset: pydicom.Dataset, calcular_intensidad=True):
         
         #extracion y analisis de imagen
@@ -61,7 +60,6 @@ class ProcesadorDICOM:
 
         # Extracción de metadatos
         for nombre_columna, tag_tuple in self.TAGS_SOLICITADOS.items():
-
             elemento = dataset.get(tag_tuple, None)
             valor = None
 
@@ -71,6 +69,7 @@ class ProcesadorDICOM:
                 except AttributeError:
                     valor = elemento
 
+                # Convertir nombres, UID, etc. si aplica
                 if hasattr(valor, "original_string"):
                     valor = str(valor)
 
@@ -81,24 +80,38 @@ class ProcesadorDICOM:
             
 
         #Analisis imagen
-        intensidad_promedio = None
         if calcular_intensidad:
             try:
                 pixel_data = dataset.pixel_array
-                metadatos["Intensidad_Promedio"] = float(np.mean(pixel_data))
-            except:
-                metadatos["Intensidad_Promedio"] = None
+                metadatos["Intensidad_Promedio"] = (
+                    float(np.mean(pixel_data)) if calcular_intensidad else "N/A")
+            except Exception:
+                # El archivo NO tiene imagen o no se puede leer → marcarlo
+                metadatos["Intensidad_Promedio"] = "Sin imagen"     
         else:
-            metadatos["Intensidad_Promedio"] = None
-
+            metadatos["Intensidad_Promedio"] = "N/A"
+            
         self.lista_metadatos.append(metadatos)
 
     def _estructurar_datos(self):
-            #Convierte la lista de diccionarios en un DataFrame.
-            if not self.lista_metadatos:
-                self.dataframe_resultados = pd.DataFrame()
-            else:
-                self.dataframe_resultados = pd.DataFrame(self.lista_metadatos)
+        #Convierte la lista de diccionarios en un DataFrame.
+        if not self.lista_metadatos:
+            self.dataframe_resultados = pd.DataFrame()
+            return
+
+        df = pd.DataFrame(self.lista_metadatos)
+
+        # Reemplazar None por "N/A"
+        df = df.fillna("N/A")
+
+        # Forzar a que filas/columnas sean numéricas cuando se pueda
+        for col in ["Numero_Filas", "Numero_Columnas"]:
+            df[col] = pd.to_numeric(df[col], errors="coerce").fillna("N/A")
+
+        # Reemplazar intensidades faltantes
+        df["Intensidad_Promedio"] = df["Intensidad_Promedio"].replace("", "N/A")
+
+        self.dataframe_resultados = df
 
     def obtener_dataframe(self) -> pd.DataFrame:
        #devolver los datos
@@ -109,7 +122,8 @@ class ProcesadorDICOM:
             return False
         
         try:
-            self.dataframe_resultados.to_csv(nombre_archivo, index=False, encoding='utf-8')
+            df = self.dataframe_resultados.fillna("N/A")
+            df.to_csv(nombre_archivo, index=False, encoding='utf-8')
             return True
         except Exception as e:
             print(f"[Error] No se pudo guardar {nombre_archivo}: {e}")
