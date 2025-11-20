@@ -9,7 +9,7 @@ Integrantes: Luis Ángel Caro Pérez
   El objetivo es dar una imagen de parte del flujo funcional de un PACS y de qué forma esas imágenes médicas y sus metadatos pueden ser manipulados gracias a herramientas de software libre.
 
 
-3. ¿Por qué DICOM y HL7 son cruciales para la interoperabilidad en salud y en qué se diferencian conceptualmente?
+2. ¿Por qué DICOM y HL7 son cruciales para la interoperabilidad en salud y en qué se diferencian conceptualmente?
 
   Tanto DICOM como HL7 son estándares esenciales para garantizar la interoperabilidad entre sistemas en el ámbito de la salud, pero cada uno cumple funciones distintas.
   Por el lado de DICOM (Digital Imaging and Communications in Medicine) está diseñado específicamente para el manejo de imágenes médicas. 
@@ -21,7 +21,7 @@ Integrantes: Luis Ángel Caro Pérez
   hospitalario no podría integrar los datos clínicos con las imágenes de forma coherente.
 
 
-5. Relevancia clínica o de preprocesamiento del análisis de intensidades en una imagen médica
+3. Relevancia clínica o de preprocesamiento del análisis de intensidades en una imagen médica
 
 La distribución de intensidades en una imagen médica puede aportar información clave tanto para interpretación clínica como para etapas de preprocesamiento. Clínicamente, las intensidades reflejan propiedades
 físicas de los tejidos: zonas hipodensas o hiperdensas en tomografía, áreas hiperintensas o hipointensas en resonancia, y variaciones importantes en ultrasonido o medicina nuclear. Analizar estas intensidades
@@ -31,7 +31,7 @@ complejas como segmentación, registro, análisis volumétrico o algoritmos de m
 posterior.
 
 
-7. Dificultades encontradas y la importancia de las herramientas de Python para el análisis de datos médicos
+4. Dificultades encontradas y la importancia de las herramientas de Python para el análisis de datos médicos
 
   Durante el desarrollo surgieron varias dificultades comunes en el procesamiento de imágenes médicas, como la presencia de archivos DICOM incompletos, formatos comprimidos no soportados, estudios parcialmente
   anonimizados con metadatos faltantes, variaciones entre modalidades y archivos sin información de imagen (pixel_array). También fue necesario gestionar adecuadamente errores en la lectura y estandarizar los
