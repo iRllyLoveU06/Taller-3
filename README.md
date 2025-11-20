@@ -23,12 +23,12 @@ Integrantes: Luis Ángel Caro Pérez
 
 5. Relevancia clínica o de preprocesamiento del análisis de intensidades en una imagen médica
 
-   La distribución de intensidades en una imagen médica puede aportar información clave tanto para interpretación clínica como para etapas de preprocesamiento. Clínicamente, las intensidades reflejan propiedades
-   físicas de los tejidos: zonas hipodensas o hiperdensas en tomografía, áreas hiperintensas o hipointensas en resonancia, y variaciones importantes en ultrasonido o medicina nuclear. Analizar estas intensidades
-   puede ayudar a identificar patrones anormales como edema, hemorragia, necrosis, inflamación o lesiones.
-   En términos de preprocesamiento, estudiar la distribución de intensidades permite realizar normalización, corrección de contraste, eliminación de ruido o ajustar rangos dinámicos antes de aplicar técnicas más
-   complejas como segmentación, registro, análisis volumétrico o algoritmos de machine learning. Es un primer paso esencial para garantizar que las imágenes se encuentren en condiciones óptimas para su análisis
-   posterior.
+La distribución de intensidades en una imagen médica puede aportar información clave tanto para interpretación clínica como para etapas de preprocesamiento. Clínicamente, las intensidades reflejan propiedades
+físicas de los tejidos: zonas hipodensas o hiperdensas en tomografía, áreas hiperintensas o hipointensas en resonancia, y variaciones importantes en ultrasonido o medicina nuclear. Analizar estas intensidades
+puede ayudar a identificar patrones anormales como edema, hemorragia, necrosis, inflamación o lesiones.
+En términos de preprocesamiento, estudiar la distribución de intensidades permite realizar normalización, corrección de contraste, eliminación de ruido o ajustar rangos dinámicos antes de aplicar técnicas más
+complejas como segmentación, registro, análisis volumétrico o algoritmos de machine learning. Es un primer paso esencial para garantizar que las imágenes se encuentren en condiciones óptimas para su análisis
+posterior.
 
 
 7. Dificultades encontradas y la importancia de las herramientas de Python para el análisis de datos médicos
