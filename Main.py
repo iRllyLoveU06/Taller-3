@@ -2,70 +2,125 @@ import os
 import sys
 from Clases import ProcesadorDICOM
 
-def mostrar_menu(): #menú
-    print("\n" + "="*50)
-    print("      Sistema de Procesamiento DICOM")
-    print("="*50)
-    print("1. Cargar y Analizar Carpeta DICOM")
-    print("2. Mostrar Metadatos Procesados (Dataframe)")
-    print("3. Salir")
-    print("-" * 50)
 
+carpetas_cargadas = {}  # {nombre_carpeta: ruta_real}
+
+
+def mostrar_menu():
+    print("\n" + "=" * 55)
+    print("      Sistema de Procesamiento DICOM")
+    print("=" * 55)
+    print("1. Registrar carpeta con archivos DICOM")
+    print("2. Extraer metadatos de carpeta registrada")
+    print("3. Mostrar DataFrame actual")
+    print("4. Guardar DataFrame a CSV")
+    print("5. Salir")
+    print("-" * 55)
+
+
+def seleccionar_carpeta():
+    """Permite escoger una carpeta previamente registrada."""
+    if not carpetas_cargadas:
+        print("\n[Advertencia] No hay carpetas cargadas aún.")
+        return None
+
+    print("\nCarpetas disponibles:")
+    for i, nombre in enumerate(carpetas_cargadas.keys(), start=1):
+        print(f"{i}. {nombre}")
+
+    try:
+        opcion = int(input("\nSeleccione el número de la carpeta: "))
+        nombres = list(carpetas_cargadas.keys())
+        return nombres[opcion - 1]
+    except:
+        print("[Error] Selección inválida.")
+        return None
+
+
+# -------------------------------------------
 def main():
     procesador = ProcesadorDICOM()
-    opcion = None
 
     while True:
         mostrar_menu()
-        opcion = input("Seleccione una opción (1-3): ")
+        opcion = input("Seleccione una opción (1-5): ")
 
-        if opcion == '1':
-            # 1. Cargar carpeta con archivos DICOM
-            ruta_carpeta = input("Ingrese la RUTA de la carpeta con archivos DICOM: ")
-            
-            if not os.path.isdir(ruta_carpeta):
-                print(f"\n[Error] La ruta '{ruta_carpeta}' no es un directorio válido o no existe.")
+        # 1. Registrar carpeta
+        if opcion == "1":
+            ruta = input("\nIngrese la ruta de la carpeta DICOM: ").strip()
+
+            if not os.path.isdir(ruta):
+                print("[Error] La ruta no es válida.")
                 continue
 
-            print("\n--- Iniciando Carga y Análisis ---")
-            
-            # Se llama al método que ejecuta la carga, extracción y estructuración
-            carga_exitosa = procesador.escanear_y_cargar_dicom(ruta_carpeta)
+            nombre_mostrado = os.path.basename(ruta.rstrip("/\\"))
+            if nombre_mostrado == "":
+                nombre_mostrado = ruta  # carpeta raíz
 
-            if carga_exitosa:
-                num_registros = len(procesador.lista_metadatos)
-                print(f"✅ Proceso completado. Se procesaron {num_registros} archivos DICOM.")
-                print(f"   Metadatos disponibles para la ruta: {procesador.ruta_cargada}")
+            carpetas_cargadas[nombre_mostrado] = ruta
+            print(f"✔ Carpeta '{nombre_mostrado}' registrada correctamente.")
+
+        # 2. Extraer metadatos de carpeta seleccionada
+        elif opcion == "2":
+            carpeta_seleccionada = seleccionar_carpeta()
+
+            if carpeta_seleccionada is None:
+                continue
+
+            ruta_real = carpetas_cargadas[carpeta_seleccionada]
+
+            resp = input("¿Calcular intensidad promedio de la imagen? (s/n): ").lower()
+            calcular_intensidad = True if resp == "s" else False
+
+            print("\n--- Iniciando extracción de metadatos ---")
+            exito = procesador.escanear_y_cargar_dicom(
+                ruta_real, calcular_intensidad=calcular_intensidad
+            )
+
+            if exito:
+                print(f"✔ Metadatos extraídos de la carpeta '{carpeta_seleccionada}'.")
+                print(f"  Total de archivos procesados: {len(procesador.lista_metadatos)}")
             else:
-                 print("❌ Proceso de carga finalizado. No se pudieron extraer metadatos.")
+                print("❌ No se encontraron archivos DICOM válidos.")
 
-        elif opcion == '2':
-            # Exportar Metadatos a CSV
-            df_final = procesador.obtener_dataframe()
-            
-            if df_final.empty:
-                print("\n[Advertencia] No hay datos cargados. Por favor, use la opción 1 primero.")
+        
+        # 3. Mostrar DataFrame
+        elif opcion == "3":
+            df = procesador.obtener_dataframe()
+
+            if df.empty:
+                print("\n[Advertencia] No hay datos procesados aún.")
             else:
-                nombre_archivo = input("Ingrese el nombre del archivo de salida (ej: resultados.csv): ").strip()
-                
-                if not nombre_archivo.lower().endswith('.csv'):
-                    nombre_archivo += '.csv'
-                
-                print(f"\nGuardando datos en {nombre_archivo}...")
-                
-                if procesador.guardar_dataframe_a_csv(nombre_archivo):
-                    print(f"✅ ¡Exportación exitosa! El archivo '{nombre_archivo}' ha sido creado.")
-                    print(f"   Total de registros guardados: {df_final.shape[0]}")
-                else:
-                    print(f"❌ La exportación falló. Verifique los permisos o el contenido del Dataframe.")
+                print("\n=== Vista previa del DataFrame ===")
+                print(df.head())
+                print(f"\nTotal de filas: {df.shape[0]}")
 
-        elif opcion == '3':
-            # 3. Salir
-            print("\nSaliendo del sistema. chau")
+
+        # 4. Guardar CSV
+        elif opcion == "4":
+            df = procesador.obtener_dataframe()
+            if df.empty:
+                print("\n[Advertencia] No hay datos para guardar.")
+                continue
+
+            nombre_archivo = input("Nombre del archivo CSV (ejemplo: salida.csv): ").strip()
+
+            if not nombre_archivo.lower().endswith(".csv"):
+                nombre_archivo += ".csv"
+
+            if procesador.guardar_dataframe_a_csv(nombre_archivo):
+                print(f"✔ Archivo '{nombre_archivo}' guardado exitosamente.")
+            else:
+                print("❌ Error al guardar el archivo.")
+
+        # 5. Salir
+        elif opcion == "5":
+            print("\nSaliendo del sistema. ¡Chao!")
             sys.exit(0)
 
         else:
-            print("\n[Error] Opción no válida. Intente de nuevo.")
+            print("\n[Error] Opción no válida, intenta de nuevo.")
+
 
 if __name__ == "__main__":
     main()
