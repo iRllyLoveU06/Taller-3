@@ -10,7 +10,6 @@ Integrantes: Luis Ángel Caro Pérez
 
 2. ¿Por qué DICOM y HL7 son cruciales para la interoperabilidad en salud y en qué se diferencian conceptualmente?
   Tanto DICOM como HL7 son estándares esenciales para garantizar la interoperabilidad entre sistemas en el ámbito de la salud, pero cada uno cumple funciones distintas.
-  
   Por el lado de DICOM (Digital Imaging and Communications in Medicine) está diseñado específicamente para el manejo de imágenes médicas. 
   Establece cómo se deben almacenar, transmitir y describir las imágenes generadas por equipos como TAC, resonancia magnética, ultrasonido, medicina nuclear, entre otros. 
   También define una estructura estándar de metadatos que permite que sistemas PACS y modalidades distintas puedan comunicarse sin perder información.
